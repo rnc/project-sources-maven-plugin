@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) 2012 Red Hat, Inc. (jdcasey@commonjava.org)
@@ -32,8 +33,8 @@
   <scm>
     <connection>scm:git:https://github.com/project-ncl/project-sources-maven-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/project-sources-maven-plugin.git</developerConnection>
-    <url>https://github.com/project-ncl/project-sources-maven-plugin</url>
     <tag>HEAD</tag>
+    <url>https://github.com/project-ncl/project-sources-maven-plugin</url>
   </scm>
 
   <properties>
@@ -56,7 +57,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.4.1</version>
-<!--        <version>3.8.0</version>-->
+        <!--        <version>3.8.0</version>-->
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
@@ -68,7 +69,7 @@
         <groupId>org.apache.maven.plugin-tools</groupId>
         <artifactId>maven-plugin-annotations</artifactId>
         <version>3.2</version>
-<!--        <version>3.15.2</version>-->
+        <!--        <version>3.15.2</version>-->
         <scope>provided</scope>
       </dependency>
 
@@ -104,29 +105,64 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <configuration>
-            <source>8</source>
-            <quiet>true</quiet>
-            <detectJavaApiLink>true</detectJavaApiLink>
-            <author>false</author>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <pom>
+            <sortPom>
+              <expandEmptyElements>false</expandEmptyElements>
+            </sortPom>
+          </pom>
+          <java>
+            <removeUnusedImports/>
+            <importOrder>
+              <file>java-import-order.txt</file>
+            </importOrder>
+            <eclipse>
+              <file>java-formatter.xml</file>
+            </eclipse>
+            <lineEndings>UNIX</lineEndings>
+          </java>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>ide-config</artifactId>
+            <version>1.1.0</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.2</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <source>8</source>
+          <quiet>true</quiet>
+          <detectJavaApiLink>true</detectJavaApiLink>
+          <author>false</author>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>
@@ -142,16 +178,6 @@
           <plugin>
             <artifactId>maven-invoker-plugin</artifactId>
             <version>3.9.1</version>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <goals>
-                  <goal>install</goal>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <properties>
                 <testVersion>${project.version}</testVersion>
@@ -175,6 +201,16 @@
               <settingsFile>src/it/settings.xml</settingsFile>
               <addTestClassPath>true</addTestClassPath>
             </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
