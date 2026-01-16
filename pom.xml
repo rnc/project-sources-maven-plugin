@@ -26,6 +26,8 @@
     <javaTestVersion>${javaVersion}</javaTestVersion>
 
     <mavenVersion>3.9.12</mavenVersion>
+    <it.maven.home>${project.build.directory}/apache-maven-</it.maven.home>
+    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
   </properties>
 
   <dependencyManagement>
@@ -87,6 +89,20 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.9.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>3.9.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -150,47 +166,103 @@
   <profiles>
     <profile>
       <id>run-its</id>
-
-      <properties>
-        <localRepositoryUrl>${project.build.directory}/local-repo</localRepositoryUrl>
-      </properties>
-
       <build>
         <plugins>
           <plugin>
-            <artifactId>maven-invoker-plugin</artifactId>
-            <version>3.9.1</version>
-            <configuration>
-              <properties>
-                <testVersion>${project.version}</testVersion>
-              </properties>
-              <debug>true</debug>
-              <goals>
-                <goal>clean</goal>
-                <goal>package</goal>
-                <goal>install</goal>
-              </goals>
-              <!-- <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo> -->
-              <localRepositoryPath>${localRepositoryUrl}</localRepositoryPath>
-              <!-- mavenExecutable>mvnDebug</mavenExecutable -->
-              <pomIncludes>
-                <!-- <pomInclude>remote-plugin-management-invalid/pom.xml</pomInclude> -->
-                <pomInclude>*/pom.xml</pomInclude>
-              </pomIncludes>
-              <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-              <cloneClean>true</cloneClean>
-              <postBuildHookScript>verify</postBuildHookScript>
-              <settingsFile>src/it/settings.xml</settingsFile>
-              <addTestClassPath>true</addTestClassPath>
-            </configuration>
+            <groupId>com.soebes.maven.plugins</groupId>
+            <artifactId>iterator-maven-plugin</artifactId>
+            <version>0.5.1</version>
             <executions>
               <execution>
-                <id>integration-test</id>
                 <goals>
-                  <goal>install</goal>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
+                  <goal>iterator</goal>
                 </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                  <items>
+                    <item>3.3.9</item>
+                    <item>3.5.4</item>
+                    <item>3.6.3</item>
+                    <item>3.8.1</item>
+                    <item>3.8.8</item>
+                    <item>3.9.1</item>
+                    <item>3.9.8</item>
+                    <item>3.9.12</item>
+                  </items>
+                  <pluginExecutors>
+                    <pluginExecutor>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                      </plugin>
+                      <goal>unpack</goal>
+                      <configuration>
+                        <artifactItems>
+                          <artifactItem>
+                            <groupId>org.apache.maven</groupId>
+                            <artifactId>apache-maven</artifactId>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <version>@item@</version>
+                            <type>zip</type>
+                            <classifier>bin</classifier>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                          </artifactItem>
+                        </artifactItems>
+                      </configuration>
+                    </pluginExecutor>
+                    <pluginExecutor>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                      </plugin>
+                      <goal>install</goal>
+                      <configuration>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <localRepositoryPath>${localRepositoryPath}-@item@</localRepositoryPath>
+                      </configuration>
+                    </pluginExecutor>
+                    <pluginExecutor>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                      </plugin>
+                      <goal>integration-test</goal>
+                      <configuration>
+                        <properties>
+                          <testVersion>${project.version}</testVersion>
+                        </properties>
+                        <debug>true</debug>
+                        <goals>
+                          <goal>clean</goal>
+                          <goal>package</goal>
+                          <goal>install</goal>
+                        </goals>
+                        <pomIncludes>
+                          <!-- <pomInclude>remote-plugin-management-invalid/pom.xml</pomInclude> -->
+                          <pomInclude>*/pom.xml</pomInclude>
+                        </pomIncludes>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <localRepositoryPath>${localRepositoryPath}-@item@</localRepositoryPath>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <cloneProjectsTo>${project.build.directory}/it-one-@item@</cloneProjectsTo>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <mavenHome>${it.maven.home}@item@</mavenHome>
+                        <!-- mavenExecutable>mvnDebug</mavenExecutable -->
+                        <postBuildHookScript>verify</postBuildHookScript>
+                        <settingsFile>src/it/settings.xml</settingsFile>
+                        <addTestClassPath>true</addTestClassPath>
+                      </configuration>
+                    </pluginExecutor>
+                    <pluginExecutor>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                      </plugin>
+                      <goal>verify</goal>
+                      <configuration/>
+                    </pluginExecutor>
+                  </pluginExecutors>
+                </configuration>
               </execution>
             </executions>
           </plugin>
