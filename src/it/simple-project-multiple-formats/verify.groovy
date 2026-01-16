@@ -1,3 +1,5 @@
+import groovy.xml.XmlSlurper
+
 def project = new XmlSlurper().parseText( new File(basedir, "pom.xml").getText() )
 def version = project.version
 if ( version == null ){

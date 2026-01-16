@@ -19,55 +19,94 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.commonjava</groupId>
-    <artifactId>commonjava</artifactId>
-    <version>8</version>
+    <groupId>com.redhat.rcm</groupId>
+    <artifactId>redhat-releng-tools</artifactId>
+    <version>13</version>
   </parent>
 
-  <groupId>org.commonjava.maven.plugins</groupId>
+  <groupId>org.jboss.pnc</groupId>
   <artifactId>project-sources-maven-plugin</artifactId>
   <version>1.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <scm>
-    <connection>scm:git:http://github.com/Commonjava/project-sources-maven-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:Commonjava/project-sources-maven-plugin.git</developerConnection>
-    <url>http://github.com/Commonjava/project-sources-maven-plugin</url>
+    <connection>scm:git:https://github.com/project-ncl/project-sources-maven-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:project-ncl/project-sources-maven-plugin.git</developerConnection>
+    <url>https://github.com/project-ncl/project-sources-maven-plugin</url>
     <tag>HEAD</tag>
   </scm>
 
   <properties>
     <projectOwner>Red Hat, Inc.</projectOwner>
-    <enforcer.skip>true</enforcer.skip>
+    <javaVersion>1.8</javaVersion>
+    <javaTestVersion>${javaVersion}</javaTestVersion>
+<!--    <enforcer.skip>true</enforcer.skip>-->
+
+    <mavenVersion>3.9.11</mavenVersion>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${mavenVersion}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.4.1</version>
+<!--        <version>3.8.0</version>-->
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>3.0.3</version>
+<!--        <version>${maven.version}</version>-->
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>3.2</version>
+<!--        <version>3.15.2</version>-->
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-assembly-plugin</artifactId>
-      <version>2.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
-      <version>3.8.1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.2</version>
+<!--      <version>3.2</version>-->
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>3.0.3</version>
+<!--      <version>3.0.3</version>-->
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+<!--      <version>4.13.1</version>-->
+<!--      <scope>test</scope>-->
     </dependency>
   </dependencies>
 
@@ -82,7 +121,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.4</version>
+<!--          <version>2.4</version>-->
           <configuration>
             <archive>
               <index>true</index>
@@ -109,16 +148,26 @@
           </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
           <configuration>
-            <debug>true</debug>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>8</source>
+            <quiet>true</quiet>
+            <detectJavaApiLink>true</detectJavaApiLink>
+            <author>false</author>
           </configuration>
         </plugin>
+<!--        <plugin>-->
+<!--          <artifactId>maven-compiler-plugin</artifactId>-->
+<!--          <configuration>-->
+<!--            <debug>true</debug>-->
+<!--            <source>1.6</source>-->
+<!--            <target>1.6</target>-->
+<!--          </configuration>-->
+<!--        </plugin>-->
         <plugin>
           <artifactId>maven-invoker-plugin</artifactId>
-          <version>1.8</version>
+          <version>3.9.1</version>
           <executions>
             <execution>
               <id>integration-test</id>
@@ -127,6 +176,8 @@
                 <goal>integration-test</goal>
                 <goal>verify</goal>
               </goals>
+            </execution>
+          </executions>
               <configuration>
                 <properties>
                   <testVersion>${project.version}</testVersion>
@@ -135,12 +186,10 @@
                 <goals>
                   <goal>clean</goal>
                   <goal>package</goal>
+                  <goal>install</goal>
                 </goals>
                 <!-- <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo> -->
                 <localRepositoryPath>${localRepositoryUrl}</localRepositoryPath>
-                <goals>
-                  <goal>install</goal>
-                </goals>
                 <!-- mavenExecutable>mvnDebug</mavenExecutable -->
                 <pomIncludes>
                     <!-- <pomInclude>remote-plugin-management-invalid/pom.xml</pomInclude> -->
@@ -152,13 +201,11 @@
                 <settingsFile>src/it/settings.xml</settingsFile>
                 <addTestClassPath>true</addTestClassPath>
               </configuration>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
-  
+
   <profiles>
     <profile>
       <id>run-its</id>

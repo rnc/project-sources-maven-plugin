@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.maven.plugins.projectsrc;
+package org.jboss.pnc.projectsrcplugin;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
@@ -53,11 +53,11 @@ import java.util.List;
  * risk of collision).
  */
 /* @formatter:off */
-@Mojo( name = "archive", 
-        requiresDependencyResolution = ResolutionScope.NONE, 
-        requiresDependencyCollection = ResolutionScope.NONE, 
-        requiresOnline = false, 
-        requiresProject = true, 
+@Mojo( name = "archive",
+        requiresDependencyResolution = ResolutionScope.NONE,
+        requiresDependencyCollection = ResolutionScope.NONE,
+        requiresOnline = false,
+        requiresProject = true,
         defaultPhase = LifecyclePhase.INITIALIZE )
 /* @formatter:on */
 public class ProjectSourcesGoal
@@ -408,7 +408,7 @@ public class ProjectSourcesGoal
 
     /**
      * Returns true if the current project is located at the Execution Root Directory (where mvn was launched)
-     * 
+     *
      * @return
      */
     private boolean isThisTheExecutionRoot()

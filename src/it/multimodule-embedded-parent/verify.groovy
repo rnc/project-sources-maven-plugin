@@ -1,6 +1,7 @@
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver
 import org.codehaus.plexus.logging.Logger
 import org.codehaus.plexus.logging.console.ConsoleLogger
+import groovy.xml.XmlSlurper
 
 def project = new XmlSlurper().parseText( new File(basedir, "pom.xml").getText() )
 def version = project.parent.version
